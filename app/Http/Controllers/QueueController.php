@@ -23,32 +23,27 @@ class QueueController extends Controller
             'mmr' => 1000, // később felülírható
         ]);
 
-                // Tegyük fel, hogy itt vannak a 10 játékos user_id-i:
-        $playerIds = [14, 22, 37, 41, 5, 19, 11, 3, 28, 9]; // Ezt nyilván dinamikusan töltöd ki máshonnan
+        // Ellenőrizzük, van-e legalább 10 játékos
+        $players = MatchmakingQueue::limit(10)->pluck('user_id');
 
-        // 1. Megkeverjük a játékosokat
-        $shuffled = collect($playerIds)->shuffle();
+        if ($players->count() === 10) {
+            $shuffled = $players->shuffle();
 
-        // 2. Létrehozzuk a lobbypéldányt, beleírjuk a két kapitányt
-        $lobby = MatchLobby::create([
-            'code' => Str::uuid(),
-            'status' => 'accepted',
-            'started_at' => now(),
-            'captain_ct_id' => $shuffled[0],
-            'captain_t_id' => $shuffled[1],
-        ]);
-
-        // 3. (opcionális) Ha van lobby-játékos pivotod, akkor mentsd el a többieket is:
-        foreach ($playerIds as $userId) {
-            DB::table('lobby_user')->insert([
-                'match_lobby_id' => $lobby->id,
-                'user_id' => $userId,
-                'created_at' => now(),
-                'updated_at' => now(),
+            $lobby = MatchLobby::create([
+                'code' => Str::uuid(),
+                'status' => 'accepted',
+                'started_at' => now(),
+                'captain_ct_id' => $shuffled[0],
+                'captain_t_id' => $shuffled[1],
             ]);
+
+            // Töröljük őket a queue-ból
+            MatchmakingQueue::whereIn('user_id', $players)->delete();
+
+            // Itt lehet redirect a lobby oldalra, ha szeretnéd:
+            // return redirect()->route('lobby.show', ['code' => $lobby->code]);
         }
 
-          MatchmakingQueue::whereIn('user_id', $players)->delete();
 
         return back()->with('message', 'Beléptél a matchmaking queue-ba.');
     }
