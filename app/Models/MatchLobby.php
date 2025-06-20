@@ -27,4 +27,9 @@ class MatchLobby extends Model
     {
         return $this->belongsTo(User::class, 'captain_t_id');
     }
+
+    public function gameServer()
+    {
+        return $this->belongsTo(\App\Models\GameServer::class, 'game_server_id');
+    }
 }

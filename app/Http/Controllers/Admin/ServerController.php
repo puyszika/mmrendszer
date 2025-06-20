@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
+use App\Models\MatchLobby;
+use App\Models\GameServer;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -243,5 +245,53 @@ class ServerController extends Controller
             }
         }
         abort(404);
+    }
+
+    public function startServerFromLobby($code)
+    {
+        $lobby = MatchLobby::where('code', $code)->firstOrFail();
+
+        if (!$lobby->final_map) {
+            return back()->with('error', 'Még nincs kiválasztott pálya.');
+        }
+
+        $server = GameServer::where('status', 'available')->inRandomOrder()->first();
+
+        if (!$server) {
+            return back()->with('error', 'Nincs elérhető szerver.');
+        }
+
+        // SSH parancs összeállítása
+        $command = <<<EOT
+    ssh root@{$server->ip} 'cd {$server->path} && ./cs2-server restart {$server->name} tournament'
+    EOT;
+
+        try {
+            $process = Process::fromShellCommandline($command);
+            $process->setTimeout(15);
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                Log::error("Szerver restart hiba: " . $process->getErrorOutput());
+                return back()->with('error', 'Nem sikerült újraindítani a szervert.');
+            }
+
+            // Állapot és kapcsolat mentése
+            $server->update(['status' => 'in_use']);
+            $lobby->update(['game_server_id' => $server->id]);
+
+            return back()->with('success', "Szerver indítva: {$server->name}");
+
+        } catch (\Exception $e) {
+            Log::error("SSH hiba: " . $e->getMessage());
+            return back()->with('error', 'Hiba történt a szerver elindításakor.');
+        }
+
+    }
+
+    public function showLobby($code)
+    {
+        $lobby = MatchLobby::with('gameServer')->where('code', $code)->firstOrFail();
+        return view('admin.lobbies.show', compact('lobby'));
     }
 }

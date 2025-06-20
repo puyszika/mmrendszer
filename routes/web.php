@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\QueueController;
 use App\Http\Controllers\MatchLobbyController;
 use App\Http\Controllers\Admin\ServerController;
+use App\Http\Controllers\LobbyController;
 
 
 
@@ -58,5 +59,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/lobby/{code}/ban-map', [LobbyController::class, 'banMap']);
     Route::get('/lobby/{code}/current-turn', [LobbyController::class, 'currentTurn']);
 });
+
+Route::post('/lobby/{code}/start-server', [\App\Http\Controllers\Admin\ServerController::class, 'startServerFromLobby'])
+    ->middleware('auth')
+    ->name('lobby.startServer');
+
+    Route::get('/admin/lobby/{code}', [\App\Http\Controllers\Admin\ServerController::class, 'showLobby'])
+    ->middleware('auth')
+    ->name('lobby.show');
+
 
 require __DIR__.'/auth.php';
