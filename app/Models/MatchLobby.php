@@ -9,7 +9,7 @@ class MatchLobby extends Model
 {
     protected $fillable = ['code', 'status', 'started_at', 'match_id', 'captain_t_id', 'captain_ct_id', 'final_map'];
 
-    public function players(): HasMany
+    public function players()
     {
         return $this->hasMany(MatchLobbyPlayer::class);
     }

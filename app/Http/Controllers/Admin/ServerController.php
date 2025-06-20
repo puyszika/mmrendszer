@@ -294,4 +294,30 @@ class ServerController extends Controller
         $lobby = MatchLobby::with('gameServer')->where('code', $code)->firstOrFail();
         return view('admin.lobbies.show', compact('lobby'));
     }
+    
+    public function assignCaptains(string $code)
+    {
+        $lobby = MatchLobby::where('code', $code)->firstOrFail();
+
+        $players = $lobby->players()->where('accepted', true)->get();
+
+        if ($players->count() < 2) {
+            return back()->with('error', 'Nincs elég játékos a kapitányokhoz.');
+        }
+
+        // Random 2 játékos
+        $captains = $players->random(2);
+
+        $captains[0]->update([
+            'is_captain' => true,
+            'team' => 'ct'
+        ]);
+
+        $captains[1]->update([
+            'is_captain' => true,
+            'team' => 't'
+        ]);
+
+        return back()->with('message', 'Kapitányok kiválasztva.');
+    }
 }

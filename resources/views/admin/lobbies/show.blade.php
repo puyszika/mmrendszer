@@ -10,6 +10,21 @@
 
     <hr class="my-4 border-gray-700">
 
+    @if ($lobby->players->count())
+    <h2 class="text-xl mt-4 mb-2 font-bold">Játékosok:</h2>
+    <ul class="space-y-2">
+        @foreach ($lobby->players as $player)
+            <li>
+                <strong>{{ $player->user->name }}</strong>
+                @if ($player->is_captain) <span class="text-yellow-600">(Kapitány)</span> @endif
+                – Csapat: {{ strtoupper($player->team ?? '-') }}
+            </li>
+        @endforeach
+    </ul>
+@else
+    <p class="text-gray-500">Még nincsenek játékosok a lobbyban.</p>
+@endif
+
     @if($lobby->final_map && !$lobby->gameServer)
         <form method="POST" action="{{ route('lobby.startServer', $lobby->code) }}">
             @csrf
@@ -24,6 +39,7 @@
             Csatlakozás a szerverhez
         </a>
     @endif
+
 
 </div>
 @endsection

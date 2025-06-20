@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MatchLobbyPlayer extends Model
 {
-    protected $fillable = ['match_lobby_id', 'user_id', 'accepted'];
+    protected $fillable = ['match_lobby_id', 'user_id', 'accepted', 'is_captain',
+    'team',];
 
     public function user(): BelongsTo
     {
