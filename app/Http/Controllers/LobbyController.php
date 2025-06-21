@@ -38,17 +38,11 @@ class LobbyController extends Controller
         $remaining = array_values(array_diff($allMaps, $bannedMaps));
 
         $finalMap = null;
+        $nextCaptain = $this->getNextBanTeam($code);
 
         // Ha már csak 1 map maradt, akkor kiválasztjuk
         if (count($remaining) === 1) {
             $finalMap = $remaining[0];
-            $lobby->update([
-                'status' => 'map_chosen',
-                'map' => $finalMap
-            ]);
-            $nextCaptain = $this->getNextBanTeam($code);
-        }
-
 
             // Mentjük is külön bejegyzésként a "picked"-et
             MapBan::create([
@@ -58,16 +52,19 @@ class LobbyController extends Controller
                 'action' => 'picked'
             ]);
 
-            $lobby->map = $finalMap;
-            $lobby->status = 'map_chosen';
-            $lobby->save();
+            $lobby->update([
+                'status' => 'map_chosen',
+                'map' => $finalMap
+            ]);
 
-            // TODO: szerverindítás itt (kövi lépés)
+            $this->assignServerToLobby($lobby);
         }
 
-        broadcast(new MapBanned($code, $map, $user->id, $finalMap, $nextCaptain))->toOthers();
+        // Mindig fusson le, ne csak az if után!
+        event(new MapBanned($code, $map, $user->id, $finalMap, $nextCaptain));
 
         return response()->json(['success' => true]);
+
     }
 
     public function currentTurn($code)

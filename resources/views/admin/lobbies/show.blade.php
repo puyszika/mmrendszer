@@ -30,20 +30,35 @@
 @else
     <p><strong>Map:</strong> Még nincs kiválasztva</p>
 @endif
-    @if($lobby->final_map && !$lobby->gameServer)
-        <form method="POST" action="{{ route('lobby.startServer', $lobby->code) }}">
-            @csrf
-            <button type="submit" class="bg-yellow-500 px-4 py-2 rounded text-black hover:bg-yellow-600">
-                Szerver indítása (tournament.conf)
-            </button>
-        </form>
-    @elseif($lobby->gameServer)
-        <p class="mt-4">🎮 Szerver indítva: <strong>{{ $lobby->gameServer->name }}</strong></p>
-        <a href="steam://connect/{{ $lobby->gameServer->ip }}:{{ $lobby->gameServer->port }}"
+    {{-- Ha már kiválasztották a végső mapet --}}
+@if ($lobby->final_map)
+
+    {{-- Ha még nincs szerver hozzárendelve --}}
+    @if (!$lobby->server)
+        <p class="mt-4 text-gray-400 italic">
+            🛠 Szerver előkészítése folyamatban...
+        </p>
+
+    {{-- Ha van szerver és az fut is --}}
+    @elseif ($lobby->server && $lobby->server->status === 'running')
+        <p class="mt-4">
+            🎮 Szerver indítva: <strong>{{ $lobby->server->name }}</strong>
+        </p>
+
+        <a href="steam://connect/{{ $lobby->server->ip ?? 'server.versuscs.hu' }}:{{ $lobby->server->port }}"
            class="inline-block mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
             Csatlakozás a szerverhez
         </a>
+
+    {{-- Ha van szerver, de még nem fut --}}
+    @elseif ($lobby->server)
+        <p class="mt-4 text-yellow-500 italic">
+            ⏳ Szerver indítása folyamatban: <strong>{{ $lobby->server->name }}</strong>
+        </p>
     @endif
+
+@endif
+
 
 
 </div>
