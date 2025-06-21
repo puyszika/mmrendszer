@@ -64,9 +64,13 @@ Route::post('/lobby/{code}/start-server', [\App\Http\Controllers\Admin\ServerCon
     ->middleware('auth')
     ->name('lobby.startServer');
 
-    Route::get('/admin/lobby/{code}', [\App\Http\Controllers\Admin\ServerController::class, 'showLobby'])
+Route::get('/admin/lobby/{code}', [\App\Http\Controllers\Admin\ServerController::class, 'showLobby'])
     ->middleware('auth')
     ->name('lobby.show');
+
+    
+Route::get('/lobby/{code}', [\App\Http\Controllers\LobbyController::class, 'show'])->middleware('auth')->name('lobby.show');
+
 
 
 require __DIR__.'/auth.php';

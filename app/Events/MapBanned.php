@@ -16,15 +16,16 @@ class MapBanned implements ShouldBroadcast
 
     public $lobbyCode;
     public $map;
-    public $userId;
-    public $finalMap;
+    public ?string $finalMap;
+    public ?int $nextCaptain;
 
-     public function __construct($lobbyCode, $map, $userId, $finalMap = null)
+    public function __construct(string $code, string $map, int $userId, ?string $finalMap = null, ?int $nextCaptain = null)
     {
-        $this->lobbyCode = $lobbyCode;
+        $this->code = $code;
         $this->map = $map;
         $this->userId = $userId;
         $this->finalMap = $finalMap;
+        $this->nextCaptain = $nextCaptain;
     }
 
     public function broadcastOn(): Channel

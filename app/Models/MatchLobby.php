@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\MatchLobby;
 
 class MatchLobby extends Model
 {
@@ -11,13 +12,9 @@ class MatchLobby extends Model
 
     public function players()
     {
-        return $this->hasMany(MatchLobbyPlayer::class);
+        return $this->hasMany(\App\Models\MatchLobbyPlayer::class, 'match_lobby_id');
     }
 
-     public function mapBans()
-    {
-        return $this->hasMany(MapBan::class);
-    }
     public function captainCT()
     {
         return $this->belongsTo(User::class, 'captain_ct_id');
@@ -32,4 +29,15 @@ class MatchLobby extends Model
     {
         return $this->belongsTo(\App\Models\GameServer::class, 'game_server_id');
     }
+
+    public function server()
+    {
+        return $this->belongsTo(GameServer::class);
+    }
+
+    public function mapBans()
+    {
+        return $this->hasMany(MapBan::class, 'lobby_code', 'code');
+    }
+
 }

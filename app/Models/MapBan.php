@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MapBan extends Model
 {
-    protected $fillable = ['lobby_code', 'map', 'user_id'];
+    protected $fillable = ['lobby_code', 'map', 'user_id', 'action'];
 
     public function lobby()
     {

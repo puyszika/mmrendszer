@@ -6,7 +6,7 @@
     <h2 class="text-2xl font-bold mb-4">Lobby: {{ $lobby->code }}</h2>
 
     <p><strong>Állapot:</strong> {{ $lobby->status }}</p>
-    <p><strong>Map:</strong> {{ $lobby->final_map ?? 'Még nincs kiválasztva' }}</p>
+   
 
     <hr class="my-4 border-gray-700">
 
@@ -25,6 +25,11 @@
     <p class="text-gray-500">Még nincsenek játékosok a lobbyban.</p>
 @endif
 
+    @if ($lobby->map)
+    <p><strong>Választott map:</strong> {{ ucfirst($lobby->map) }}</p>
+@else
+    <p><strong>Map:</strong> Még nincs kiválasztva</p>
+@endif
     @if($lobby->final_map && !$lobby->gameServer)
         <form method="POST" action="{{ route('lobby.startServer', $lobby->code) }}">
             @csrf
