@@ -73,4 +73,5 @@ Route::get('/lobby/{code}', [\App\Http\Controllers\LobbyController::class, 'show
 
 
 
+
 require __DIR__.'/auth.php';

@@ -9,6 +9,7 @@ use App\Events\MapBanned;
 use App\Models\GameServer;
 use App\Jobs\StartCs2Server;
 use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Auth;
 
 
 class LobbyController extends Controller

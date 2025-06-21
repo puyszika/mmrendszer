@@ -159,34 +159,34 @@ class ServerController extends Controller
 
         // Dinamikus port beállítás indítás előtt
         if ($action === 'start') {
-        $confPath = $server['config_path'];
+            $confPath = $server['config_path'];
 
-        // Ha még nem létezik a config fájl, akkor generálunk egyet sablon alapján
-        $checkCommand = "ssh {$sshUser}@{$ip} \"if [ -f {$confPath} ]; then echo exists; else echo missing; fi\"";
-        $result = trim(shell_exec($checkCommand));
+            // Ha még nem létezik a config fájl, akkor generálunk egyet sablon alapján
+            $checkCommand = "ssh {$sshUser}@{$ip} \"if [ -f {$confPath} ]; then echo exists; else echo missing; fi\"";
+            $result = trim(shell_exec($checkCommand));
 
-        Log::debug('Config fájl ellenőrzése', [
-        'command' => $checkCommand,
-        'result' => $result,
-        ]);
-
-        if ($result === 'missing') {
-            $port = $server['port'] ?? 27015;
-            $tvPort = $port + 5;
-
-            $template = Storage::disk('local')->get('server_template.conf');
-            $content = preg_replace("/\r\n|\r/", "\n", $content);
-
-            Log::debug('Új config generálása', [
-            'port' => $port,
-            'tv_port' => $tvPort,
-            'path' => $confPath,
-            'content' => $content,
+            Log::debug('Config fájl ellenőrzése', [
+                'command' => $checkCommand,
+                'result' => $result,
             ]);
 
-            $this->sshWriteFile($user, $host, $remotePath, $content);
+            if ($result === 'missing') {
+                $port = $server['port'] ?? 27015;
+                $tvPort = $port + 5;
+
+                $template = Storage::disk('local')->get('server_template.conf');
+                $content = str_replace(['{PORT}', '{TV_PORT}'], [$port, $tvPort], $template);
+
+                Log::debug('Új config generálása', [
+                    'port' => $port,
+                    'tv_port' => $tvPort,
+                    'path' => $confPath,
+                    'content' => $content,
+                ]);
+
+            $this->sshWriteFile($sshUser, $ip, $confPath, $content);
         }
-    }
+    
 
         // Végrehajtás
         $remoteCommand = "cd $remotePath && MSM_I_KNOW_WHAT_I_AM_DOING_ALLOW_ROOT=1 ./cs2-server @$instance $action";
@@ -211,8 +211,8 @@ class ServerController extends Controller
 
         return redirect()->route('admin.servers.index')->with('success', "Szerver $action művelet sikeres.");
 
+        }
     }
-
     protected function sshReadFile($user, $host, $remotePath)
     {
         $command = ['ssh', "{$user}@{$host}", "cat {$remotePath}"];

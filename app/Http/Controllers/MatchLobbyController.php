@@ -104,13 +104,6 @@ class MatchLobbyController extends Controller
             // Ha minden rendben, indítjuk a szervert
             $steamIds = $players->map(fn($p) => $p->user->steam_id)->values();
 
-            // Laravel service hívás
-            app(GameServerService::class)->assignFreeServer($steamIds->toArray(), $lobby->selected_map);
-
-            // opcionálisan logolhatod vagy státuszt frissíthetsz
-            $lobby->status = 'server_started';
-            $lobby->save();
-
             $service = app(GameServerService::class);
             $server = $service->assignFreeServer($steamIds->toArray(), $lobby->selected_map);
 

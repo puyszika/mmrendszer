@@ -14,14 +14,15 @@ class MapBanned implements ShouldBroadcast
 {
     use InteractsWithSockets, SerializesModels;
 
-    public $lobbyCode;
-    public $map;
+    public string $lobbyCode;
+    public string $map;
+    public int $userId;
     public ?string $finalMap;
     public ?int $nextCaptain;
 
     public function __construct(string $code, string $map, int $userId, ?string $finalMap = null, ?int $nextCaptain = null)
     {
-        $this->code = $code;
+        $this->lobbycode = $code;
         $this->map = $map;
         $this->userId = $userId;
         $this->finalMap = $finalMap;
